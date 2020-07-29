@@ -1,2 +1,2 @@
 # NekoVault
- A simplistic GTK3 file encryptor/decryptor written in Go.
+ A minimalist GTK3 file encryptor/decryptor written in Go.
