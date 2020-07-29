@@ -20,26 +20,35 @@ import (
 // Check for errors.
 func check(e error) {
         if e != nil {
-                log.Fatal(e);
-                panic(e);
+                log.Fatal(e)
+                panic(e)
+        }
+}
+
+// Handle updating status label.
+func updatestatus(statustext string, statuslabel *gtk.Label) {
+        statuslabel.SetText(statustext)
+        for gtk.EventsPending() {
+                gtk.MainIteration()
         }
 }
 
 // Handle encrypting files.
-func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar) {
+func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
         // Check if user pressed cancel button (prevents segmentation fault).
         if filenamepointer == nil {
                 return
         }
 
         // Dereference filename pointer.
-        filename := *filenamepointer;
+        filename := *filenamepointer
 
         // Get basename and remove extension.
-        basename := filepath.Base(filename);
-        name := strings.TrimSuffix(basename, filepath.Ext(basename));
+        basename := filepath.Base(filename)
+        name := strings.TrimSuffix(basename, filepath.Ext(basename))
 
         // Make a temporary zip file.
+        updatestatus("Status: Compressing...", statuslabel)
         fi, err := os.Stat(filename)
         var cmd *exec.Cmd
         check(err)
@@ -58,6 +67,7 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         dat, _ := ioutil.ReadFile("nekotemp.zip")
 
         // Create key hash from password.
+        updatestatus("Status: Generating key hash...", statuslabel)
         h := sha256.New()
         h.Write([]byte(s))
 
@@ -65,34 +75,41 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         key := hex.EncodeToString(h.Sum(nil))
 
         // Encrypt data.
+        updatestatus("Status: Encrypting...", statuslabel)
         encrypted := encrypt(dat, key)
 
         // Write output data to file.
+        updatestatus("Status: Writing output to file...", statuslabel)
         f, err := os.OpenFile(filepath.Dir(filename)+"/"+name+".neko", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
         check(err)
         defer f.Close()
         f.WriteString(encrypted)
 
         // Delete temporary zip file.
+        updatestatus("Status: Cleaning up...", statuslabel)
         os.Remove("nekotemp.zip")
 
         // Update progress bar.
         progressbar.SetFraction(1.0)
+        updatestatus("Status: Done", statuslabel)
 }
 
 // Handle decrypting files.
-func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar) {
+func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
         // Check if user pressed cancel button (prevents segmentation fault).
         if filenamepointer == nil {
                 return
         }
+
         // Dereference filename pointer.
         filename := *filenamepointer
 
         // Read input file bytes.
+        updatestatus("Status: Reading file to decrypt...", statuslabel)
         dat, _ := ioutil.ReadFile(filename)
 
         // Create key hash from password.
+        updatestatus("Status: Generating key hash...", statuslabel)
         h := sha256.New()
         h.Write([]byte(s))
 
@@ -100,9 +117,11 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         key := hex.EncodeToString(h.Sum(nil))
 
         // Decrypt data.
+        updatestatus("Status: Decrypting...", statuslabel)
         decrypted := decrypt(string(dat), key)
 
         // Write data to temporary zip file.
+        updatestatus("Status: Writing output to temporary file...", statuslabel)
         f, err := os.OpenFile("nekotemp.zip", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
         check(err)
         defer f.Close()
@@ -112,14 +131,17 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         progressbar.SetFraction(0.5)
 
         // Unzip temporary zip file into directory of input file.
+        updatestatus("Status: Decompressing...", statuslabel)
         cmd := exec.Command("unzip", "nekotemp.zip", "-d", filepath.Dir(filename))
         cmd.Run()
 
         // Delete temporary zip file.
+        updatestatus("Status: Cleaning up...", statuslabel)
         os.Remove("nekotemp.zip")
 
         // Update progress bar.
         progressbar.SetFraction(1.0)
+        updatestatus("Status: Done", statuslabel)
 }
 
 // Handle encrypting data.
