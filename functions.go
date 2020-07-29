@@ -70,6 +70,9 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
 
         // Delete temporary zip file.
         os.Remove("nekotemp.zip")
+
+        // Update progress bar.
+        progressbar.SetFraction(1.0)
 }
 
 // Handle decrypting files.
@@ -80,9 +83,6 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         }
         // Dereference filename pointer.
         filename := *filenamepointer
-
-        // Update progress bar.
-        progressbar.SetFraction(0.5)
 
         // Read input file bytes.
         dat, _ := ioutil.ReadFile(filename)
@@ -103,12 +103,18 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         defer f.Close()
         f.WriteString(decrypted)
 
+        // Update progress bar.
+        progressbar.SetFraction(0.5)
+
         // Unzip temporary zip file into directory of input file.
         cmd := exec.Command("unzip", "nekotemp.zip", "-d", filepath.Dir(filename))
         cmd.Run()
 
         // Delete temporary zip file.
         os.Remove("nekotemp.zip")
+
+        // Update progress bar.
+        progressbar.SetFraction(1.0)
 }
 
 // Handle encrypting data.
