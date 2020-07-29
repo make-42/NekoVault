@@ -14,6 +14,7 @@ import (
         "os"
         "os/exec"
         "path/filepath"
+        "strings"
 )
 
 // Check for errors.
@@ -32,7 +33,11 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         }
 
         // Dereference filename pointer.
-        filename := *filenamepointer
+        filename := *filenamepointer;
+
+        // Get basename and remove extension.
+        basename := filepath.Base(filename);
+        name := strings.TrimSuffix(basename, filepath.Ext(basename));
 
         // Make a temporary zip file.
         fi, err := os.Stat(filename)
@@ -63,7 +68,7 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         encrypted := encrypt(dat, key)
 
         // Write output data to file.
-        f, err := os.OpenFile(filepath.Dir(filename)+"/output.neko", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+        f, err := os.OpenFile(filepath.Dir(filename)+"/"+name+".neko", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
         check(err)
         defer f.Close()
         f.WriteString(encrypted)
