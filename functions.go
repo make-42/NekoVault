@@ -35,6 +35,9 @@ func updatestatus(statustext string, statuslabel *gtk.Label) {
 
 // Handle encrypting files.
 func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
+        // Update progress bar.
+        progressbar.SetFraction(0.0)
+
         // Check if user pressed cancel button (prevents segmentation fault).
         if filenamepointer == nil {
                 return
@@ -61,7 +64,7 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         cmd.Run()
 
         // Update progress bar.
-        progressbar.SetFraction(0.5)
+        progressbar.SetFraction(0.4)
 
         // Read temporary zip file bytes.
         dat, _ := ioutil.ReadFile("nekotemp.zip")
@@ -70,6 +73,9 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         updatestatus("Status: Generating key hash...", statuslabel)
         h := sha256.New()
         h.Write([]byte(s))
+
+        // Update progress bar.
+        progressbar.SetFraction(0.5)
 
         // Convert key to string.
         key := hex.EncodeToString(h.Sum(nil))
@@ -96,6 +102,9 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
 
 // Handle decrypting files.
 func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
+        // Update progress bar.
+        progressbar.SetFraction(0.0)
+
         // Check if user pressed cancel button (prevents segmentation fault).
         if filenamepointer == nil {
                 return
@@ -108,10 +117,16 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         updatestatus("Status: Reading file to decrypt...", statuslabel)
         dat, _ := ioutil.ReadFile(filename)
 
+        // Update progress bar.
+        progressbar.SetFraction(0.1)
+
         // Create key hash from password.
         updatestatus("Status: Generating key hash...", statuslabel)
         h := sha256.New()
         h.Write([]byte(s))
+
+        // Update progress bar.
+        progressbar.SetFraction(0.4)
 
         // Convert key to string.
         key := hex.EncodeToString(h.Sum(nil))
