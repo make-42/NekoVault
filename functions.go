@@ -34,7 +34,7 @@ func updatestatus(statustext string, statuslabel *gtk.Label) {
 }
 
 // Handle encrypting files.
-func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
+func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label) {
         // Update progress bar.
         progressbar.SetFraction(0.0)
 
@@ -98,10 +98,11 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         // Update progress bar.
         progressbar.SetFraction(1.0)
         updatestatus("Status: Done", statuslabel)
+        hintlabel.SetText("The file/folder was successfully encrypted.");
 }
 
 // Handle decrypting files.
-func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label) {
+func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label) {
         // Update progress bar.
         progressbar.SetFraction(0.0)
 
@@ -157,6 +158,7 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         // Update progress bar.
         progressbar.SetFraction(1.0)
         updatestatus("Status: Done", statuslabel)
+        hintlabel.SetText("The file/folder was successfully decrypted.");
 }
 
 // Handle encrypting data.

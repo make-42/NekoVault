@@ -33,9 +33,17 @@ func main() {
         entry, err := gtk.EntryNew()
         check(err)
 
+        // Create an entry widget to verify key entry.
+        entryverify, err := gtk.EntryNew()
+        check(err)
+
         // Make entry widget hide text and set placeholder text.
         entry.SetVisibility(false)
         entry.SetPlaceholderText("Enter a key...")
+
+        // Make verify entry widget hide text and set placeholder text.
+        entryverify.SetVisibility(false)
+        entryverify.SetPlaceholderText("Verify key...")
 
         // Create progress bar to show encryption status.
         progressbar, err := gtk.ProgressBarNew()
@@ -45,20 +53,32 @@ func main() {
         btnenc, err := gtk.ButtonNewWithLabel("Encrypt")
         check(err)
         btnenc.Connect("clicked", func() {
-                filename := gtk.OpenFileChooserNative("Choose file/folder to encrypt.", win)
                 entrytext, err := entry.GetText()
                 check(err)
-                encryptfile(filename, entrytext, progressbar, statuslabel)
+                entryverifytext, err := entryverify.GetText()
+                check(err)
+                if(entrytext != entryverifytext){
+                  hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>");
+                  return
+                }
+                filename := gtk.OpenFileChooserNative("Choose file/folder to encrypt.", win)
+                encryptfile(filename, entrytext, progressbar, statuslabel, hintlabel)
         })
 
         // Create button to decrypt files
         btndec, err := gtk.ButtonNewWithLabel("Decrypt")
         check(err)
         btndec.Connect("clicked", func() {
+          entrytext, err := entry.GetText()
+          check(err)
+          entryverifytext, err := entryverify.GetText()
+          check(err)
+          if(entrytext != entryverifytext){
+            hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>");
+            return
+          }
                 filename := gtk.OpenFileChooserNative("Choose file to decrypt.", win)
-                entrytext, err := entry.GetText()
-                check(err)
-                decryptfile(filename, entrytext, progressbar, statuslabel)
+                decryptfile(filename, entrytext, progressbar, statuslabel, hintlabel)
         })
 
         // Add the box to the window.
@@ -72,6 +92,9 @@ func main() {
 
         // Add the entry widget.
         box.Add(entry)
+
+        // Add the verify entry widget.
+        box.Add(entryverify)
 
         // Add the encrypt button to the box.
         box.Add(btnenc)
