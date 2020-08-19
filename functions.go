@@ -34,18 +34,15 @@ func updatestatus(statustext string, statuslabel *gtk.Label) {
 }
 
 // Handle encrypting files.
-func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label, image *gtk.Image) {
-        image.SetFromFile("./Assets/working2.gif");
-        // Update progress bar.
-        progressbar.SetFraction(0.0)
-
-        // Check if user pressed cancel button (prevents segmentation fault).
-        if filenamepointer == nil {
+func encryptfile(filename string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label, image *gtk.Image) {
+        // Check if user pressed cancel button.
+        if filename == "" {
                 return
         }
 
-        // Dereference filename pointer.
-        filename := *filenamepointer
+        // Update progress bar.
+        progressbar.SetFraction(0.0)
+        image.SetFromFile("./Assets/working2.gif")
 
         // Get basename and remove extension.
         basename := filepath.Base(filename)
@@ -99,23 +96,20 @@ func encryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         // Update progress bar.
         progressbar.SetFraction(1.0)
         updatestatus("Status: Done", statuslabel)
-        hintlabel.SetText("The file/folder was successfully encrypted.");
-        image.SetFromFile("./Assets/success.gif");
+        hintlabel.SetText("The file/folder was successfully encrypted.")
+        image.SetFromFile("./Assets/success.gif")
 }
 
 // Handle decrypting files.
-func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label, image *gtk.Image) {
-        image.SetFromFile("./Assets/working2.gif");
-        // Update progress bar.
-        progressbar.SetFraction(0.0)
-
-        // Check if user pressed cancel button (prevents segmentation fault).
-        if filenamepointer == nil {
+func decryptfile(filename string, s string, progressbar *gtk.ProgressBar, statuslabel *gtk.Label, hintlabel *gtk.Label, image *gtk.Image) {
+        // Check if user pressed cancel button.
+        if filename == "" {
                 return
         }
 
-        // Dereference filename pointer.
-        filename := *filenamepointer
+        // Update progress bar.
+        progressbar.SetFraction(0.0)
+        image.SetFromFile("./Assets/working2.gif")
 
         // Read input file bytes.
         updatestatus("Status: Reading file to decrypt...", statuslabel)
@@ -161,8 +155,8 @@ func decryptfile(filenamepointer *string, s string, progressbar *gtk.ProgressBar
         // Update progress bar.
         progressbar.SetFraction(1.0)
         updatestatus("Status: Done", statuslabel)
-        hintlabel.SetText("The file/folder was successfully decrypted.");
-        image.SetFromFile("./Assets/success.gif");
+        hintlabel.SetText("The file/folder was successfully decrypted.")
+        image.SetFromFile("./Assets/success.gif")
 }
 
 // Handle encrypting data.
@@ -195,7 +189,7 @@ func encrypt(plaintext []byte, keyString string) (encryptedString string) {
 // Handle decrypting data.
 func decrypt(enc []byte, keyString string) (decryptedString string) {
 
-        key, _ := hex.DecodeString(keyString);
+        key, _ := hex.DecodeString(keyString)
 
         //Create a new Cipher Block from the key
         block, err := aes.NewCipher(key)

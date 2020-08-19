@@ -2,7 +2,21 @@ package main
 
 import (
         "github.com/gotk3/gotk3/gtk"
+        "github.com/sqweek/dialog"
 )
+
+func dirpicker(checkbutton *gtk.CheckButton) string {
+        bool := checkbutton.GetActive()
+        filename := ""
+        if bool {
+                filename, _ := dialog.Directory().Title("Pick folder").Browse()
+                return filename
+        } else {
+                filename, _ := dialog.File().Load()
+                return filename
+        }
+        return filename
+}
 
 func main() {
         // Initialize GTK without parsing any command line arguments.
@@ -26,8 +40,13 @@ func main() {
         check(err)
 
         // Create a new image widget to show cute catgirls.
-        image, err := gtk.ImageNew();
+        image, err := gtk.ImageNew()
         check(err)
+
+        // Create a new image widget to show cute catgirls.
+        checkbutton, err := gtk.CheckButtonNewWithLabel("Folder?")
+        check(err)
+        checkbutton.SetHAlign(3)
 
         // Create a new label widget to show status of program.
         statuslabel, err := gtk.LabelNew("Status: Idle")
@@ -61,11 +80,11 @@ func main() {
                 check(err)
                 entryverifytext, err := entryverify.GetText()
                 check(err)
-                if(entrytext != entryverifytext){
-                  hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>");
-                  return
+                if entrytext != entryverifytext {
+                        hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>")
+                        return
                 }
-                filename := gtk.OpenFileChooserNative("Choose file/folder to encrypt.", win)
+                filename := dirpicker(checkbutton)
                 encryptfile(filename, entrytext, progressbar, statuslabel, hintlabel, image)
         })
 
@@ -73,16 +92,16 @@ func main() {
         btndec, err := gtk.ButtonNewWithLabel("Decrypt")
         check(err)
         btndec.Connect("clicked", func() {
-          entrytext, err := entry.GetText()
-          check(err)
-          entryverifytext, err := entryverify.GetText()
-          check(err)
-          if(entrytext != entryverifytext){
-            hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>");
-            return
-          }
-          filename := gtk.OpenFileChooserNative("Choose file to decrypt.", win)
-          decryptfile(filename, entrytext, progressbar, statuslabel, hintlabel, image)
+                entrytext, err := entry.GetText()
+                check(err)
+                entryverifytext, err := entryverify.GetText()
+                check(err)
+                if entrytext != entryverifytext {
+                        hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>")
+                        return
+                }
+                filename := dirpicker(checkbutton)
+                decryptfile(filename, entrytext, progressbar, statuslabel, hintlabel, image)
         })
 
         // Add the box to the window.
@@ -94,6 +113,9 @@ func main() {
         // Add the image widget.
         box.Add(image)
         image.SetFromFile("./Assets/idle.gif")
+
+        // Add the check button widget.
+        box.Add(checkbutton)
 
         // Add the status label widget.
         box.Add(statuslabel)
