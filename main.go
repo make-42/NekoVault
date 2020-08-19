@@ -25,6 +25,10 @@ func main() {
         hintlabel, err := gtk.LabelNew("Click the buttons below to start encrypting/decrypting files.")
         check(err)
 
+        // Create a new image widget to show cute catgirls.
+        image, err := gtk.ImageNew();
+        check(err)
+
         // Create a new label widget to show status of program.
         statuslabel, err := gtk.LabelNew("Status: Idle")
         check(err)
@@ -62,7 +66,7 @@ func main() {
                   return
                 }
                 filename := gtk.OpenFileChooserNative("Choose file/folder to encrypt.", win)
-                encryptfile(filename, entrytext, progressbar, statuslabel, hintlabel)
+                encryptfile(filename, entrytext, progressbar, statuslabel, hintlabel, image)
         })
 
         // Create button to decrypt files
@@ -77,8 +81,8 @@ func main() {
             hintlabel.SetMarkup("<span color='red'>Error: The two keys do not match...</span>");
             return
           }
-                filename := gtk.OpenFileChooserNative("Choose file to decrypt.", win)
-                decryptfile(filename, entrytext, progressbar, statuslabel, hintlabel)
+          filename := gtk.OpenFileChooserNative("Choose file to decrypt.", win)
+          decryptfile(filename, entrytext, progressbar, statuslabel, hintlabel, image)
         })
 
         // Add the box to the window.
@@ -86,6 +90,10 @@ func main() {
 
         // Start adding widgets to the box while have the hint label as a parent.
         box.PackStart(hintlabel, true, true, 0)
+
+        // Add the image widget.
+        box.Add(image)
+        image.SetFromFile("./Assets/idle.gif")
 
         // Add the status label widget.
         box.Add(statuslabel)
